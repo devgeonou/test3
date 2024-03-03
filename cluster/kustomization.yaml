@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - tools.yaml
   - apps.yaml
+  - hpa.yaml
