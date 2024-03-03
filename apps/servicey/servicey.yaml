@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: servicey
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: enable-config
+  namespace: servicey
+data:
+  Cleverbit__Enabled: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servicey
+  namespace: servicey
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: servicey
+  template:
+    metadata:
+      labels:
+        app: servicey
+    spec:
+      containers:
+      - name: servicey
+        image: 4719/s2s:v1
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: enable-config
+          mountPath: /app/kpf/enable-config
+          readOnly: true
+      volumes:
+      - name: enable-config
+        configMap:
+          name: enable-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicey
+  namespace: servicey
+spec:
+  selector:
+    app: servicey
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: servicey-virtualservice
+  namespace: servicey
+spec:
+  hosts:
+  - "servicey.cb-interview.com"
+  gateways:
+  - istio-ingress/istio-ingress
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: servicey.servicey.svc.cluster.local
+        port:
+          number: 8080
