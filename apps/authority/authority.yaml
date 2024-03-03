@@ -65,7 +65,7 @@ spec:
   hosts:
   - "authority.cb-interview.com"
   gateways:
-  - authority-gateway
+  - istio-ingress/istio-ingress
   http:
   - match:
     - uri:
