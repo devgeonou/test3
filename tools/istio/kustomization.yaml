@@ -6,4 +6,3 @@ resources:
   - istio-base.yaml
   - istio-istiod.yaml
   - istio-gw.yaml
-  - hpa.yaml
