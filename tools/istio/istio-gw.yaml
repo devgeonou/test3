@@ -19,11 +19,3 @@ spec:
         name: istio
         namespace: istio-system
       interval: 1m
-  values:
-    resources:
-      requests:
-        cpu: "100m"
-        memory: "128Mi"
-      limits:
-        cpu: "2000m"
-        memory: "1024Mi"
