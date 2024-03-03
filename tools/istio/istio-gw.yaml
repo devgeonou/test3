@@ -13,6 +13,7 @@ spec:
       protocol: HTTP
     hosts:
     - "authority.cb-interview.com"
+    - "servicex.cb-interview.com"
     tls:
       httpsRedirect: true
   - port:
@@ -21,6 +22,7 @@ spec:
       protocol: HTTPS
     hosts:
     - "authority.cb-interview.com"
+    - "servicex.cb-interview.com"
     tls:
       mode: SIMPLE
       credentialName: cb-tls

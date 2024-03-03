@@ -72,6 +72,6 @@ spec:
         prefix: "/"
     route:
     - destination:
-        host: authority
+        host: authority.authority.svc.cluster.local
         port:
           number: 8080

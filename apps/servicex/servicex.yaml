@@ -2,3 +2,88 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: servicex
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: enable-config
+  namespace: servicex
+data:
+  Cleverbit__Enabled: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: servicey-url
+  namespace: servicex
+type: Opaque
+data:
+  Cleverbit__Url: aHR0cDovL3NlcnZpY2V5LnNlcnZpY2V5LnN2Yy5jbHVzdGVyLmxvY2Fs
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servicex
+  namespace: servicex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: servicex
+  template:
+    metadata:
+      labels:
+        app: servicex
+    spec:
+      containers:
+      - name: servicex
+        image: 4719/s2s:v1
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: url-secret
+          mountPath: /app/kpf/secret
+          readOnly: true
+        - name: enable-config
+          mountPath: /app/kpf/enable-config
+          readOnly: true
+      volumes:
+      - name: url-secret
+        secret:
+          secretName: servicex-url
+      - name: enable-config
+        configMap:
+          name: enable-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicex
+  namespace: servicex
+spec:
+  selector:
+    app: servicex
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: servicex-virtualservice
+  namespace: servicex
+spec:
+  hosts:
+  - "servicex.cb-interview.com"
+  gateways:
+  - istio-ingress/istio-ingress
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: servicex.servicex.svc.cluster.local
+        port:
+          number: 8080
