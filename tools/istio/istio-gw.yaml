@@ -13,8 +13,18 @@ spec:
   chart:
     spec:
       chart: gateway
+      version: "1.20.0"
       sourceRef:
         kind: HelmRepository
         name: istio
         namespace: istio-system
       interval: 1m
+  values:
+    gateway:
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          cpu: "500m"
+          memory: "256Mi"
