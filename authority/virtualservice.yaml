@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: authority-virtualservice
+  namespace: authority
+spec:
+  hosts:
+  - "authority.cb-interview.com"
+  gateways:
+  - authority-gateway
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: authority
+        port:
+          number: 8080

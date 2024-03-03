@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authority
+  namespace: authority
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authority
+  template:
+    metadata:
+      labels:
+        app: authority
+    spec:
+      containers:
+      - name: authority
+        image: 4719/authority:v1
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/kpf/enable-config
+          readOnly: true
+      volumes:
+      - name: config-volume
+        configMap:
+          name: enable-config
+          items:
+          - key: Cleverbit__Enabled
+            path: Cleverbit__Enabled

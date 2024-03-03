@@ -1,0 +1,51 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: servicex-gateway
+  namespace: servicex
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "servicex.cb-interview.com"
+    tls:
+      httpsRedirect: true # Redirect HTTP to HTTPS
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: servicex-virtualservice
+  namespace: servicex
+spec:
+  hosts:
+  - "servicex.cb-interview.com"
+  gateways:
+  - servicex-gateway
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: servicex
+        port:
+          number: 8080
+    corsPolicy:
+      allowOrigins:
+      - exact: "http://servicex.cb-interview.com"
+      allowMethods:
+      - POST
+      - GET
+      - OPTIONS
+      - DELETE
+      - PUT
+      allowCredentials: true
+      allowHeaders:
+      - authorization

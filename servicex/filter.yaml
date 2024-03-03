@@ -1,0 +1,47 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: jwt-header-forwarding
+  namespace: servicex
+spec:
+  workloadSelector:
+    labels:
+      app: servicex
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: SIDECAR_INBOUND
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.jwt_authn"
+        proxy:
+          proxyVersion: '^1\.8.*'
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.lua
+          typed_config:
+            "@type": "type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua"
+            inlineCode: |
+              function envoy_on_request(request_handle)
+                local headers, err = request_handle:httpCall(
+                  "envoy.filters.http.jwt_authn",
+                  {
+                    ["headers"] = {
+                      [":method"] = "GET",
+                      [":path"] = "/userinfo",
+                      [":authority"] = "servicex"
+                    },
+                    ["timeout"] = "5s",
+                  }
+                )
+                if headers then
+                  local payload = headers[":path"]:match("([^/]+)$")
+                  if payload then
+                    request_handle:headers():add("X-JWT-PAYLOAD", payload)
+                  end
+                end
+              end
